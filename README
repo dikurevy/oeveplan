@@ -1,0 +1,5 @@
+The setup file takes a single argument consisting of an url address to a
+json.js file created by the RevyTex environment. It prepends and appends
+strings in order to make it usable by the oeveplan script.
+
+Example: ./setup.sh http://dikurevy.dk/2011/http-pub/json.js
