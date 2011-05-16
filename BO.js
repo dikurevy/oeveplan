@@ -1,0 +1,23 @@
+var BO = new function() {
+	this.ie        = false /*@cc_on || true @*/;
+	this.ie4       = this.ie && !document.getElementById;
+	this.ie5       = this.ie && !document.namespaces && !this.ie4;
+	this.ie7       = false /*@cc_on || (@_jscript_version == '5.7' && !!window.XMLHttpRequest && !document.querySelector) @*/;
+	this.ie8       = navigator.userAgent.indexOf('Trident/4.0') !== -1;
+	this.ie6       = this.ie && !!document.implementation && !!document.implementation.hasFeature && !this.ie7 && !this.ie8;
+	this.ie55      = this.ie && !!document.namespaces && !this.ie6 && !this.ie7 && !this.ie8;
+	this.ie7vista  = this.ie7 && /Windows NT 6\.0/.test(navigator.appVersion);
+	this.ns4       = !this.ie && !!document.layers && !!window.confirm && !document.createElement;
+	this.opera     = !!self.opera;
+	this.gecko     = !!document.getBoxObjectFor;
+	this.khtml     = !!navigator.vendor === 'KDE';
+	this.konq      = this.khtml || document.childNodes && !document.all && !navigator.taintEnabled;
+	this.safari    = !!document.childNodes && !document.all && !navigator.taintEnabled && !navigator.accentColorName;
+	this.safari4   = this.safari && !!window.postMessage;
+	this.safari30  = this.safari && !!window.devicePixelRatio;
+	this.safari12  = this.safari && !parseInt(0,10).toFixed && !window.XMLHttpRequest;
+	this.safari20  = this.safari && !!parseInt(0,10).toFixed && !this.safari12 && !this.safari30;
+	this.safari11  = this.safari && !this.safari12 && !this.safari20 && !this.safari30;
+	this.chrome    = navigator.userAgent.indexOf('Chrome') !== -1;
+	this.X11       = navigator.appVersion.indexOf("X11") !== -1;
+};
