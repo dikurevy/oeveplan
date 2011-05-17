@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+  <META http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Mikrofonplan DIKUrevy</title>
+  <link rel="stylesheet" type="text/css" href="./style.css" />
+  <script language="javascript" src="./BO.js"></script>
+  <script language="javascript" src="./DOMBuilder.js"></script>
+  <script language="javascript" src="./Array.js"></script>
+	<script type="text/javascript"
+  src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+  <script language="javascript"
+  src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js"></script>
+  <script language="javacsript" src="./dragtable.js"</script>
+  <script language="javascript">
+    var rooms = [
+      {id: "N04", "name": "N 004" , "class":"blue-col"},
+      {id: "N10", "name": "N 010" , "class":"red-col"},
+      {id: "N30", "name": "N 030" , "class":"yellow-col"},
+      {id: "N37", "name": "N 037"  , "class":"green-col"},
+      {id: "SUP1", "name": "Store UP1" , "class":"blue-col"},
+      {id: "LUP1" ,"name": "Lille UP1" , "class":"red-col"},
+      {id: "HARLEM","name": "Harlem", "class":""} 
+    ]
+    var source = null;
+    var data = {"sketches":[]};
+    window.revy = {
+      drawSegments : function(data,text) {
+      var D = DOMBuilder;
+
+      var segments = data;
+      var table,
+        colGroup,
+        headRow,
+        tr;
+
+      table = D.TABLE({'id':'plan'},
+        D.COL(),
+        colGroup = D.COLGROUP(),
+        D.THEAD({},
+          headRow = D.TR({},
+            D.TH({}, "Tidspunkt")
+          )
+        )
+      );
+
+        for(i=0; i < rooms.length; i++) {
+          headRow.appendChild(D.TH({'class':'room'},rooms[i].name));
+          colGroup.appendChild(D.COL());
+        }
+        headRow.appendChild(D.TH({'class':'room'},'Frie'));
+        var segmentBody = D.TBODY();
+        
+        if(segments.length > 0)
+          table.appendChild(segmentBody);
+
+        
+        for(i = 0; i < segments.length; i++) {
+            tr = D.TR({'class':'segment segment'+i});
+            tr.appendChild(D.TH({'class':'period'},segments[i].start + ' - ' +
+            segments[i].end));
+            for(j = 0; j < rooms.length;j++){
+              if(j < segments[i].sketches.length){
+                sketch = segments[i].sketches[j];
+                td = D.TD({'class':'sketch','id':'s'+i+'s'+j});
+                content ='<h2>' + sketch.sketch + '</h2><ul>';
+                  for(k = 0; k < sketch.actors.length; k++){
+                    content += '<li>' + sketch.actors[k] + '</li>';
+                  }
+                content += '</ul>'; 
+                td.innerHTML = content;
+                tr.appendChild(td);
+              } else {
+                tr.appendChild(D.TD({'class':'sketch','id':'s'+i+'s'+j},''));
+                
+              }
+            }
+            content = '<ul>';
+            for(j = 0; j < segments[i].free.length; j++){
+              if(segments[i].free[j]) {
+                content += '<li>' + segments[i].free[j] + '</li>';
+              }
+            }
+            content += '</ul>';
+            tr.appendChild(td = D.TD({'class':'free'}));
+            td.innerHTML = content;
+            table.appendChild(tr);
+        }
+              document.body.innerHTML = '<textarea rows="10" cols="30" name="data" id="data">' + text + '</textarea>';
+      document.body.innerHTML += '<button onclick="updateData();">Opdatér</button>';
+      document.body.appendChild(table);
+
+      $('.sketch').draggable({helper:'clone',start:function(event,ui){source
+      = event.target}}).droppable({drop:
+      function(event,ui){
+        target_id = event.target.id.split('-');
+        source_id = source.id.split('-');
+        if(target_id[1] == source_id[1]){
+          tmp = event.target.innerHTML;
+          event.target.innerHTML = source.innerHTML;
+          $('#'+source.id).html(tmp);
+        }
+        source=null;}});
+      }
+    }
+
+    $('document').ready(function(){
+        revy.drawSegments(data,'');
+    });
+    function updateData(){
+      var dataText = '([' +
+      document.getElementById("data").value + '])';
+      data = eval(dataText);
+      revy.drawSegments(data,document.getElementById("data").value);
+    }
+  </script>
+  <style type="text/css">
+  * {
+    font-family: "Tahoma", "Verdana", sans-serif;
+    font-size:10pt;
+  }
+  h2 {
+    margin:0px;
+  }
+  table{
+    table-layout:fixed;
+    empty-cells:show;
+  }
+  th{
+    vertical-align:text-top;
+    min-width:200px;
+  }
+  td{
+    vertical-align:text-top;
+    padding:5px;
+    border: 1px solid #000;
+  }
+  .segment {
+  }
+  .room {
+    width:200px;
+  }
+  .sketch {
+    width:200px;
+  }
+  .sketch:hover {
+    background-color:#DDD;
+  }
+  .period {
+    width:100px;
+  }
+  </style>
+  </head>
+  <body>
+<!--    <table id="rock" class="draggable"> 
+  <tr>
+  <td>Sketch</td>
+ <script language="javascript">
+   for (m in mics){
+    var mic = mics[m];
+    document.write("<td class=\"mic " + mic.class + "\">" + mics[m].name + "</td>");
+  }
+ </script>
+ </tr>
+ <script language="javascript">
+  var j=0;
+  for (a in data){
+
+    document.write("<tr><td colspan=\"" + mics.length+1 + "\" class=\"break-line\">" + data[a].title + "</td></tr>");
+    for(s in data[a].materials) {
+    sketch = data[a].materials[s];
+    document.write("<tr>");
+    document.write("<td>" + sketch.title + "</td>");
+    var i = 0;
+    for (m in mics){
+    var mic = mics[m];
+    if(sketch.roles[i]) { 
+      actor = sketch.roles[i].actor;
+    } else { 
+      actor = "";
+    }
+    document.write("<td class=\"" + mic.class + " sketch \" id=\"" +
+    mic.id + "-" + j + "\" >" + actor + "</td>");
+    i++;
+  }
+
+    
+    document.write("</tr>");
+    j++;
+    }
+  }
+ </script>
+  </table>
+-->
+  </body>
+</html>
+
