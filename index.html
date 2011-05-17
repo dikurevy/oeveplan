@@ -78,7 +78,8 @@
 	<script type="text/javascript" src="Array.js"></script>
 <!--	<script type="text/javascript" src="jquery-1.3.2.min.js"></script>-->
 <!--	<script type="text/javascript" src="jquery.delegate.js"></script>-->
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+	<script type="text/javascript"
+  src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
 	<script type="text/javascript">
 	window.revy = {
 		drawRehersal : function() {
@@ -237,17 +238,20 @@
 
 window.updateDisplay = function () {
 	var inUse = [];
-	var ret = '<tr>\n\t<th>10:00 - 10:40</th>\n\t';
-	
+	var ret = '{\n\t';
+  ret += '"start":"' + document.getElementById("from").value + '",';
+  ret += '"end":"' + document.getElementById("to").value + '",\n\t';
+	ret += '"sketches":['
 	ret += jQuery('#plan tbody tr:has("th input:checked")').map(function(index, domElement) {
 		var sketch = sketches[domElement.rowIndex];
 
-		return '<td><h2>' + domElement.firstChild.textContent + '</h2><ul>' +
+		return '{"sketch":"' + domElement.firstChild.textContent +
+    '","actors":[' +
 			jQuery(domElement).children('td:has("input:checked")').map(function(index, domElement) {
 				var actor = actors[domElement.cellIndex - 1];
 				inUse.push(actor);
-				return '<li>' + actor.name + '</li>';
-			}).get().join('') +
+				return '"' + actor.name + '"';
+			}).get().join(',') +
 
 /*
 			jQuery.map(sketch, function(data) {
@@ -255,23 +259,28 @@ window.updateDisplay = function () {
 				return '<li>' + actors[data.col].name + '</li>';
 			}).join('') +
 */
-			'</ul></td>';
-	}).get().join('\n\t');
+			']}';
+	}).get().join(',\n\t');
 
-	ret += '\n\t<td><h2>Fri</h2><ul>';
+	ret += '],\n\t"free":[';
 	ret += actors.map(function(actor) {
 		if (inUse.indexOf(actor) === -1) {
-			return '<li>' + actor.name + '</li>';
+			return '"' + actor.name + '"';
 		}
-	}).join('');
-	ret += '</ul></td>';
+	}).join(',');
+	ret += ']';
 
-	ret += '\n</tr>';
-
-	document.body.innerHTML = '<pre>' + ret.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>';
+	ret += '\n},';
+  alert(ret);
+//	document.body.innerHTML = '<pre>' + ret.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>';
 };
 
-			document.body.innerHTML += '<button onclick="updateDisplay()">Til HTML</button>';
+			var form = '<button onclick="updateDisplay()">Til HTML</button>';
+      form += '<label for="from">Segment start:</label>'
+      form += '<input type="textfield" name="from" id="from" value="19:00" />';
+      form += '<label for="to">Segment slut:</label>';
+      form += '<input\ type="textfield" name="to" id="to" value="19:40" />';
+      document.body.innerHTML += form;
 			document.body.appendChild(table);
 		}
 	};
