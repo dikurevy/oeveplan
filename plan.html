@@ -14,11 +14,10 @@
   <script language="javacsript" src="./dragtable.js"</script>
   <script language="javascript">
     var rooms = [
-      {id: "N04", "name": "N 004" , "class":"blue-col"},
-      {id: "N10", "name": "N 010" , "class":"red-col"},
+      {id: "N04", "name": "N 004"},
+      {id: "N16", "name": "N 016" , "class":"blue-col"},
       {id: "N30", "name": "N 030" , "class":"yellow-col"},
       {id: "N37", "name": "N 037"  , "class":"green-col"},
-      {id: "SUP1", "name": "Store UP1" , "class":"blue-col"},
       {id: "LUP1" ,"name": "Lille UP1" , "class":"red-col"},
       {id: "HARLEM","name": "Harlem", "class":""} 
     ]
@@ -27,8 +26,7 @@
     window.revy = {
       drawSegments : function(data,text) {
       var D = DOMBuilder;
-
-      var segments = data;
+      var segments = opener.segments;
       var table,
         colGroup,
         headRow,
@@ -53,41 +51,48 @@
         
         if(segments.length > 0)
           table.appendChild(segmentBody);
-
         
         for(i = 0; i < segments.length; i++) {
             tr = D.TR({'class':'segment segment'+i});
             tr.appendChild(D.TH({'class':'period'},segments[i].start + ' - ' +
             segments[i].end));
             for(j = 0; j < rooms.length;j++){
-              if(j < segments[i].sketches.length){
+              if(j < segments[i].sketches.length &&
+                segments[i].sketches[j]){
                 sketch = segments[i].sketches[j];
-                td = D.TD({'class':'sketch','id':'s'+i+'s'+j});
-                content ='<h2>' + sketch.sketch + '</h2><ul>';
-                  for(k = 0; k < sketch.actors.length; k++){
+                td = D.TD({'class':'sketch','id':i+'-'+j});
+                if(sketch.sketch){
+                  content ='<h2>' + sketch.sketch + '</h2>';
+     /*             for(k = 0; k < sketch.actors.length; k++){
                     content += '<li>' + sketch.actors[k] + '</li>';
                   }
-                content += '</ul>'; 
+                content += '</ul>'; */
+                if(sketch.actors){
+                  content += sketch.actors.join(', ');
+                }
                 td.innerHTML = content;
                 tr.appendChild(td);
+                }
               } else {
-                tr.appendChild(D.TD({'class':'sketch','id':'s'+i+'s'+j},''));
+                tr.appendChild(D.TD({'class':'sketch','id':i+'-'+j},''));
                 
               }
             }
-            content = '<ul>';
+
+            content = '';
             for(j = 0; j < segments[i].free.length; j++){
               if(segments[i].free[j]) {
-                content += '<li>' + segments[i].free[j] + '</li>';
+                content += ' ' + segments[i].free[j] + ',';
               }
             }
-            content += '</ul>';
+
             tr.appendChild(td = D.TD({'class':'free'}));
-            td.innerHTML = content;
+            td.innerHTML = content.replace(/(,$)/g, "");
             table.appendChild(tr);
         }
-              document.body.innerHTML = '<textarea rows="10" cols="30" name="data" id="data">' + text + '</textarea>';
-      document.body.innerHTML += '<button onclick="updateData();">Opdatér</button>';
+//              document.body.innerHTML = '<textarea rows="10" cols="100" name="data" id="data">' + text + '</textarea>';
+//      document.body.innerHTML += '<button onclick="updateData();">Opdatér</button>';
+//      document.body.innerHTML += '<button onclick="printWindow();">Print</button>';
       document.body.appendChild(table);
 
       $('.sketch').draggable({helper:'clone',start:function(event,ui){source
@@ -95,7 +100,17 @@
       function(event,ui){
         target_id = event.target.id.split('-');
         source_id = source.id.split('-');
-        if(target_id[1] == source_id[1]){
+        if(target_id[0] == source_id[0]){
+          segment = source.parentNode.rowIndex-1;
+          source_sketch = source.cellIndex-1;
+          target_sketch = event.target.cellIndex-1;
+
+          tmp_sketch = opener.segments[segment].sketches[target_sketch];
+          opener.segments[segment].sketches[target_sketch] =
+          opener.segments[segment].sketches[source_sketch];
+          opener.segments[segment].sketches[source_sketch] =
+          tmp_sketch;
+
           tmp = event.target.innerHTML;
           event.target.innerHTML = source.innerHTML;
           $('#'+source.id).html(tmp);
@@ -113,6 +128,13 @@
       data = eval(dataText);
       revy.drawSegments(data,document.getElementById("data").value);
     }
+    function printWindow(){
+      var w = window.open('','','');
+      w.document.write('<table>');
+      w.document.write(document.getElementById("plan").innerHTML);
+      w.document.write('</table>');
+      w.print();
+    }
   </script>
   <style type="text/css">
   * {
@@ -123,31 +145,44 @@
     margin:0px;
   }
   table{
-    table-layout:fixed;
     empty-cells:show;
+    border-spacing:0px;
+    border: 1px solid #000;
   }
   th{
     vertical-align:text-top;
-    min-width:200px;
+    min-width:150px;
+    border: 1px solid black;
   }
-  td{
+  table td{
     vertical-align:text-top;
+    border: 1px solid black;
+    background-color:#FFF;
+    text-align:left;
     padding:5px;
-    border: 1px solid #000;
+  }
+  table td ul {
+    list-style:none;
+    padding-left:0px;
+  }
+  table td ul li {
   }
   .segment {
   }
-  .room {
-    width:200px;
-  }
   .sketch {
-    width:200px;
+    width:150px; 
   }
   .sketch:hover {
     background-color:#DDD;
   }
   .period {
     width:100px;
+  }
+  .free{
+    width:100px;
+  }
+  .ui-draggable-dragging{
+    border:3px solid #888;
   }
   </style>
   </head>

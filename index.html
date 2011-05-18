@@ -81,6 +81,7 @@
 	<script type="text/javascript"
   src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
 	<script type="text/javascript">
+  var segments = []; //This is bad, but dunno where to put it
 	window.revy = {
 		drawRehersal : function() {
 			var $ = DOMBuilder;
@@ -89,7 +90,8 @@
 				colGroup,
 				headRow,
 				tr;
-			
+		  var segmentsTable;
+      	
 			var actors = [];
 			var sketches = [];
 			
@@ -236,52 +238,91 @@
 				}
 			);
 
+      segmentsTable = $.TABLE({'id':'segments'},
+        $.THEAD({},
+          headRow = $.TR({},
+            $.TH({},'Segment')
+          )
+        ) 
+      );
+      
+window.loadSegment = function(index){
+  var segment = segments[index];
+  jQuery('#plan tbody th').map(function(index,domElement){
+    for(i=0;i < segment.sketches.length;i++){
+      if(domElement.firstChild.textContent == segment.sketches[i].sketch){
+        alert('found one');
+      }
+    }
+  });
+}
+window.addSegment = function(){
+  var segment = updateDisplay();
+
+  segmentsTable.appendChild(tr = $.TR({},td = $.TD({},segment.start+' - '+segment.end)));
+
+  jQuery(td).click(function(event){
+    loadSegment(this.parentNode.rowIndex-1);
+  });
+  tr.appendChild(td = $.TD({'class':'segment-del'},'X'));
+
+  segments.push(segment);
+
+  jQuery(td).click(function(event){
+    var thisRow = this.parentNode;
+    var thisTable = thisRow.parentNode;
+    segments.splice(thisRow.rowIndex - 1,1);
+    thisTable.removeChild(thisRow);
+    content = '';
+    for(i = 0; i < segments.length;i++){
+      content += segments[i].start + '\n';
+    }
+  });
+}
+window.sortSegments = function() {
+  var w = window.open('plan.html','planner');
+}
 window.updateDisplay = function () {
-	var inUse = [];
-	var ret = '{\n\t';
-  ret += '"start":"' + document.getElementById("from").value + '",';
-  ret += '"end":"' + document.getElementById("to").value + '",\n\t';
-	ret += '"sketches":['
-	ret += jQuery('#plan tbody tr:has("th input:checked")').map(function(index, domElement) {
-		var sketch = sketches[domElement.rowIndex];
+  var inUse = [];
+  var ret = {
+    'start': document.getElementById('from').value,
+    'end': document.getElementById('to').value,
+    'sketches': new Array(6), //Dirty hack, this should match the number of rooms
+    'free': []
+  };
+  var i = 0;
+  
+  jQuery('#plan tbody tr:has("th input:checked")').map(function(index,domElement) {
+     var sketch = {
+      'sketch': domElement.firstChild.textContent,
+      'actors':[]
+    }
+    jQuery(domElement).children('td:has("input:checked")').map(function(index,domElement) {
+      var actor = actors[domElement.cellIndex -1];
+      inUse.push(actor);
+      sketch.actors.push(actor.name);
+    })
+    ret.sketches[i] = sketch;
+    i++;
+  });
 
-		return '{"sketch":"' + domElement.firstChild.textContent +
-    '","actors":[' +
-			jQuery(domElement).children('td:has("input:checked")').map(function(index, domElement) {
-				var actor = actors[domElement.cellIndex - 1];
-				inUse.push(actor);
-				return '"' + actor.name + '"';
-			}).get().join(',') +
-
-/*
-			jQuery.map(sketch, function(data) {
-				inUse.push(actors[data.col]);
-				return '<li>' + actors[data.col].name + '</li>';
-			}).join('') +
-*/
-			']}';
-	}).get().join(',\n\t');
-
-	ret += '],\n\t"free":[';
-	ret += actors.map(function(actor) {
+  actors.map(function(actor) {
 		if (inUse.indexOf(actor) === -1) {
-			return '"' + actor.name + '"';
+			ret.free.push(actor.name);
 		}
-	}).join(',');
-	ret += ']';
-
-	ret += '\n},';
-  alert(ret);
-//	document.body.innerHTML = '<pre>' + ret.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>';
+	});
+  return ret;
 };
 
-			var form = '<button onclick="updateDisplay()">Til HTML</button>';
+			var form = '<button onclick="addSegment()">Gem segment</button>';
       form += '<label for="from">Segment start:</label>'
       form += '<input type="textfield" name="from" id="from" value="19:00" />';
       form += '<label for="to">Segment slut:</label>';
       form += '<input\ type="textfield" name="to" id="to" value="19:40" />';
+      form += '<button onclick="sortSegments()">Sortér segmenter</button>';
       document.body.innerHTML += form;
 			document.body.appendChild(table);
+      document.body.appendChild(segmentsTable);
 		}
 	};
 	</script>
