@@ -249,7 +249,7 @@
 window.loadSession = function(){
   var json = prompt("Indsæt JSON kode her");
   var data = eval('(' + json + ')');
-  alert(data.length);
+  
   for(var i =0;i < data.length;i++){
     addSegment(data[i]); 
   }
