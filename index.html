@@ -240,26 +240,48 @@
 
       segmentsTable = $.TABLE({'id':'segments'},
         $.THEAD({},
-          headRow = $.TR({},
-            $.TH({},'Segment')
-          )
+          headRow = $.TR({})
         ) 
       );
-      
+
+      headRow.appendChild($.TH({},'Segment'));
+      headRow.appendChild($.TH({},'Tidspunkt'));
+window.loadSession = function(){
+  var json = prompt("Indsæt JSON kode her");
+  var data = eval('(' + json + ')');
+  alert(data.length);
+  for(var i =0;i < data.length;i++){
+    addSegment(data[i]); 
+  }
+}
+window.saveSession = function(){
+  var jsonObject = JSON.stringify(segments); //This is firefox 3.5.4+ specific
+  alert(jsonObject);
+}
 window.loadSegment = function(index){
   var segment = segments[index];
   jQuery('#plan tbody th').map(function(index,domElement){
     for(i=0;i < segment.sketches.length;i++){
       if(domElement.firstChild.textContent == segment.sketches[i].sketch){
-        alert('found one');
       }
     }
   });
 }
-window.addSegment = function(){
-  var segment = updateDisplay();
 
-  segmentsTable.appendChild(tr = $.TR({},td = $.TD({},segment.start+' - '+segment.end)));
+window.addSegment = function(segment){
+  var tr = $.TR({});
+
+  tr.appendChild($.TD({},segment.start+' - '+segment.end));
+  content ='';
+  for(var i=0;i<segment.sketches.length;i++) {
+    if(segment.sketches[i])
+      content += ' ' + segment.sketches[i].sketch + ',';
+  }
+
+  content = content.replace(/(,$)/g,"");
+
+  tr.appendChild($.TD({},content));
+  segmentsTable.appendChild(tr);
 
   jQuery(td).click(function(event){
     loadSegment(this.parentNode.rowIndex-1);
@@ -314,7 +336,9 @@ window.updateDisplay = function () {
   return ret;
 };
 
-			var form = '<button onclick="addSegment()">Gem segment</button>';
+			var form = '<button onclick="addSegment(updateDisplay())">Gem segment</button>';
+      form += '<button onclick="loadSession()">Indlæs session</button>';
+      form += '<button onclick="saveSession()">Gem session</button>';
       form += '<label for="from">Segment start:</label>'
       form += '<input type="textfield" name="from" id="from" value="19:00" />';
       form += '<label for="to">Segment slut:</label>';
