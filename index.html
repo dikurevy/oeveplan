@@ -72,7 +72,7 @@
 		// Fallback. Will be overwritten by revue.data.json.js
 		var data = [];
 	</script>
-	<script type="text/javascript" src="json.js"></script>
+	<script type="text/javascript" src="revue.data.json.js"></script>
 	<script type="text/javascript" src="BO.js"></script>
 	<script type="text/javascript" src="DOMBuilder.js"></script>
 	<script type="text/javascript" src="Array.js"></script>
@@ -90,6 +90,7 @@
 		drawRehersal : function() {
 			var $ = DOMBuilder;
 			var acts = data[0]['acts'];
+
 			var table,
 				colGroup,
 				headRow,
@@ -127,9 +128,10 @@
 				)
 			);
 			
-			
+		
 			for (i = 0; i < actors.length; i++) {
 				headRow.appendChild($.TH({'class':'name'}, actors[i].name));
+          
 				colGroup.appendChild($.COL());
 			}
 			
@@ -253,14 +255,14 @@
 window.loadSession = function(){
   var json = prompt("Indsæt JSON kode her");
   var data = eval('(' + json + ')');
-  
-  for(var i =0;i < data.length;i++){
-    addSegment(data[i]); 
+  document.getElementById("day").value = data.day;
+  for(var i =0;i < data.segments.length;i++){
+    addSegment(data.segments[i]); 
   }
 }
 window.saveSession = function(){
-  var jsonObject = JSON.stringify(data); //This is firefox 3.5.4+ specific
-  alert(jsonObject);
+  var jsonObject = JSON.stringify(segmentData); //This is firefox 3.5.4+ specific
+    document.getElementById('jsondata').value = jsonObject;
 }
 window.loadSegment = function(index){
   var segment = segmentData.segments[index];
@@ -354,6 +356,7 @@ window.updateDisplay = function () {
       form += '<input\ type="textfield" name="to" id="to" value="" />';
       form += '<button onclick="sortSegments()">Sortér segmenter</button>';
       document.body.innerHTML += form;
+      document.body.innerHTML += '<textarea name="jsondata" id="jsondata" onfocus="this.select()"></textarea>';
 			document.body.appendChild(table);
       document.body.appendChild(segmentsTable);
 		}
