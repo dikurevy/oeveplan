@@ -14,19 +14,19 @@
   <script language="javacsript" src="./dragtable.js"</script>
   <script language="javascript">
     var rooms = [
-      {id: "N04", "name": "N 004"},
-      {id: "N16", "name": "N 016" , "class":"blue-col"},
-      {id: "N30", "name": "N 030" , "class":"yellow-col"},
-      {id: "N37", "name": "N 037"  , "class":"green-col"},
+      {id: "N26", "name": "1-0-26"},
+      {id: "N30", "name": "1-0-30" , "class":"blue-col"},
+      {id: "N34", "name": "1-0-34" , "class":"yellow-col"},
+      {id: "N37", "name": "1-0-37"  , "class":"green-col"},
       {id: "LUP1" ,"name": "Lille UP1" , "class":"red-col"},
       {id: "HARLEM","name": "Harlem", "class":""} 
     ]
     var source = null;
-    var data = {"sketches":[]};
     window.revy = {
-      drawSegments : function(data,text) {
+      drawSegments : function() {
       var D = DOMBuilder;
-      var segments = opener.segments;
+      var data = opener.segmentData;
+      var segments = data.segments;
       var table,
         colGroup,
         headRow,
@@ -90,9 +90,8 @@
             td.innerHTML = content.replace(/(,$)/g, "");
             table.appendChild(tr);
         }
-//              document.body.innerHTML = '<textarea rows="10" cols="100" name="data" id="data">' + text + '</textarea>';
-//      document.body.innerHTML += '<button onclick="updateData();">Opdatér</button>';
-//      document.body.innerHTML += '<button onclick="printWindow();">Print</button>';
+       
+      document.body.innerHTML += '<h1>Øveplan for: ' + data.day + '</h1>';
       document.body.appendChild(table);
 
       $('.sketch').draggable({helper:'clone',start:function(event,ui){source
@@ -104,11 +103,10 @@
           segment = source.parentNode.rowIndex-1;
           source_sketch = source.cellIndex-1;
           target_sketch = event.target.cellIndex-1;
-
-          tmp_sketch = opener.segments[segment].sketches[target_sketch];
-          opener.segments[segment].sketches[target_sketch] =
-          opener.segments[segment].sketches[source_sketch];
-          opener.segments[segment].sketches[source_sketch] =
+          tmp_sketch = opener.segmentData.segments[segment].sketches[target_sketch];
+          opener.segmentData.segments[segment].sketches[target_sketch] =
+          opener.segmentData.segments[segment].sketches[source_sketch];
+          opener.segmentData.segments[segment].sketches[source_sketch] =
           tmp_sketch;
 
           tmp = event.target.innerHTML;
@@ -120,21 +118,8 @@
     }
 
     $('document').ready(function(){
-        revy.drawSegments(data,'');
+        revy.drawSegments();
     });
-    function updateData(){
-      var dataText = '([' +
-      document.getElementById("data").value + '])';
-      data = eval(dataText);
-      revy.drawSegments(data,document.getElementById("data").value);
-    }
-    function printWindow(){
-      var w = window.open('','','');
-      w.document.write('<table>');
-      w.document.write(document.getElementById("plan").innerHTML);
-      w.document.write('</table>');
-      w.print();
-    }
   </script>
   <style type="text/css">
   * {
@@ -187,46 +172,6 @@
   </style>
   </head>
   <body>
-<!--    <table id="rock" class="draggable"> 
-  <tr>
-  <td>Sketch</td>
- <script language="javascript">
-   for (m in mics){
-    var mic = mics[m];
-    document.write("<td class=\"mic " + mic.class + "\">" + mics[m].name + "</td>");
-  }
- </script>
- </tr>
- <script language="javascript">
-  var j=0;
-  for (a in data){
-
-    document.write("<tr><td colspan=\"" + mics.length+1 + "\" class=\"break-line\">" + data[a].title + "</td></tr>");
-    for(s in data[a].materials) {
-    sketch = data[a].materials[s];
-    document.write("<tr>");
-    document.write("<td>" + sketch.title + "</td>");
-    var i = 0;
-    for (m in mics){
-    var mic = mics[m];
-    if(sketch.roles[i]) { 
-      actor = sketch.roles[i].actor;
-    } else { 
-      actor = "";
-    }
-    document.write("<td class=\"" + mic.class + " sketch \" id=\"" +
-    mic.id + "-" + j + "\" >" + actor + "</td>");
-    i++;
-  }
-
-    
-    document.write("</tr>");
-    j++;
-    }
-  }
- </script>
-  </table>
--->
   </body>
 </html>
 

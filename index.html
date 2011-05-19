@@ -81,8 +81,12 @@
 	<script type="text/javascript"
   src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
 	<script type="text/javascript">
-  var segments = []; //This is bad, but dunno where to put it
-	window.revy = {
+  var segmentData = {
+    'day':'Indsæt ugedag', 
+    segments:[]
+  };
+	
+  window.revy = {
 		drawRehersal : function() {
 			var $ = DOMBuilder;
 			var acts = data[0]['acts'];
@@ -255,11 +259,11 @@ window.loadSession = function(){
   }
 }
 window.saveSession = function(){
-  var jsonObject = JSON.stringify(segments); //This is firefox 3.5.4+ specific
+  var jsonObject = JSON.stringify(data); //This is firefox 3.5.4+ specific
   alert(jsonObject);
 }
 window.loadSegment = function(index){
-  var segment = segments[index];
+  var segment = segmentData.segments[index];
   jQuery('#plan tbody th').map(function(index,domElement){
     for(i=0;i < segment.sketches.length;i++){
       if(domElement.firstChild.textContent == segment.sketches[i].sketch){
@@ -288,20 +292,23 @@ window.addSegment = function(segment){
   });
   tr.appendChild(td = $.TD({'class':'segment-del'},'X'));
 
-  segments.push(segment);
+  segmentData.segments.push(segment);
 
   jQuery(td).click(function(event){
     var thisRow = this.parentNode;
     var thisTable = thisRow.parentNode;
-    segments.splice(thisRow.rowIndex - 1,1);
+    segmentData.segments.splice(thisRow.rowIndex - 1,1);
     thisTable.removeChild(thisRow);
     content = '';
-    for(i = 0; i < segments.length;i++){
-      content += segments[i].start + '\n';
+    for(i = 0; i < segmentData.segments.length;i++){
+      content += segmentData.segments[i].start + '\n';
     }
   });
 }
 window.sortSegments = function() {
+  //This line should be in a change eventhandler but don't have time to
+  //fix it
+  segmentData.day = document.getElementById('day').value;
   var w = window.open('plan.html','planner');
 }
 window.updateDisplay = function () {
@@ -339,10 +346,12 @@ window.updateDisplay = function () {
 			var form = '<button onclick="addSegment(updateDisplay())">Tilføj segment</button>';
       form += '<button onclick="loadSession()">Indlæs session</button>';
       form += '<button onclick="saveSession()">Gem session</button>';
+      form += '<label for="day">Dag</label>';
+      form += '<input type="textfield" name="day" id="day" value="" />';
       form += '<label for="from">Segment start:</label>'
-      form += '<input type="textfield" name="from" id="from" value="19:00" />';
+      form += '<input type="textfield" name="from" id="from" value="" />';
       form += '<label for="to">Segment slut:</label>';
-      form += '<input\ type="textfield" name="to" id="to" value="19:40" />';
+      form += '<input\ type="textfield" name="to" id="to" value="" />';
       form += '<button onclick="sortSegments()">Sortér segmenter</button>';
       document.body.innerHTML += form;
 			document.body.appendChild(table);
