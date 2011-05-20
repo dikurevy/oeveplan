@@ -85,6 +85,7 @@
     'day':'Indsæt ugedag', 
     segments:[]
   };
+  var disabledActors = [];
 	
   window.revy = {
 		drawRehersal : function() {
@@ -128,9 +129,14 @@
 				)
 			);
 			
-		
+	
 			for (i = 0; i < actors.length; i++) {
-				headRow.appendChild($.TH({'class':'name'}, actors[i].name));
+				headRow.appendChild($.TH({'class':'name'}, 
+          $.LABEL({'for': actors[i].name},
+            actors[i].name,
+            $.INPUT({'type':'checkbox', 'id': actors[i].name, 'name' : actors[i].name})
+          )
+        ));
           
 				colGroup.appendChild($.COL());
 			}
@@ -183,7 +189,45 @@
 					}
 				}
 			}
-			
+     
+      var deletedInputs = [];
+      jQuery(table).delegate(
+        '#plan thead th input',
+        'change',
+        function(){
+ 					var input = this;
+					var thisCell = jQuery(this).closest('th')[0];
+          var actor = actors[thisCell.cellIndex - 1]; 
+ 					// Mark the column as (un)occupied
+					colGroup.childNodes[thisCell.cellIndex - 1].className = (input.checked) ? 'inUse' : '';
+          //This line doesn't help much currently as it will be unmarked
+          //first time a segment with the actor is freed
+          if(input.checked) {
+            deletedInputs[thisCell.cellIndex - 1] = [];
+            for(var i=0; i < actor.rows.length; i++){
+               var row = table.rows[actor.rows[i]];
+               var cell = row.childNodes[thisCell.cellIndex];
+               var roleLabel = cell.childNodes[0];
+               roleInput = roleLabel.childNodes[1];
+               removedInput = roleLabel.removeChild(roleInput);
+               deletedInputs[thisCell.cellIndex - 1].push( removedInput);
+            }
+            disabledActors.push(actor);
+          } else {
+            for(var i=0; i < actor.rows.length; i++) {
+              var row = table.rows[actor.rows[i]];
+              var cell = row.childNodes[thisCell.cellIndex];
+              cell.childNodes[0].appendChild(deletedInputs[thisCell.cellIndex - 1][i]);
+            }
+            for(var i=0; i < disabledActors.length; i++) {
+              if(disabledActors[i].name == actor.name) {
+                disabledActors.splice(i,1);
+              }
+            }
+          }
+        }
+     );	
+
 			jQuery(table).delegate(
 				'#plan tbody th input',
 				'change',
@@ -219,8 +263,7 @@
 					for (var i = 0; i < actor.rows.length; i++) {
 						var row = table.rows[actor.rows[i]];
 						var roles = sketches[actor.rows[i]];
-						
-						// This is only run if the user is unchecking a box
+            // This is only run if the user is unchecking a box
 						// Find out if freeing up an actor really enables a previously blocked sketch
 						var unckeckingEnabledSketch = true;
 						if (!input.checked) {
@@ -231,7 +274,6 @@
 								}
 							}
 						}
-						
 						// Block/unblock all rows that arent this one and arent in use.
 						if (row !== thisRow && row.className !== 'inUse' && unckeckingEnabledSketch) {
 							row.className = (input.checked) ? 'blocked' : '';
@@ -252,6 +294,15 @@
 
       headRow.appendChild($.TH({},'Segment'));
       headRow.appendChild($.TH({},'Tidspunkt'));
+
+window.isDisabled = function(actor){
+  for(var i=0;i < disabledActors.length;i++){
+    if(JSON.stringify(actor) == JSON.stringify(disabledActors[i])){
+      return true;
+    }
+  }
+  return false;
+}
 window.loadSession = function(){
   var json = prompt("Indsæt JSON kode her");
   var data = eval('(' + json + ')');
@@ -308,13 +359,11 @@ window.addSegment = function(segment){
   });
 }
 window.sortSegments = function() {
-  //This line should be in a change eventhandler but don't have time to
-  //fix it
   segmentData.day = document.getElementById('day').value;
   var w = window.open('plan.html','planner');
 }
 window.updateDisplay = function () {
-  var inUse = [];
+  var inUse = disabledActors;
   var ret = {
     'start': document.getElementById('from').value,
     'end': document.getElementById('to').value,
