@@ -18,7 +18,7 @@
       {id: "N30", "name": "1-0-30" , "class":"blue-col"},
       {id: "N34", "name": "1-0-34" , "class":"yellow-col"},
       {id: "N37", "name": "1-0-37"  , "class":"green-col"},
-      {id: "LUP1" ,"name": "Lille UP1" , "class":"red-col"},
+      {id: "SUP1" ,"name": "Store UP1" , "class":"red-col"},
       {id: "HARLEM","name": "Harlem", "class":""} 
     ]
     var source = null;
@@ -41,7 +41,6 @@
           )
         )
       );
-
         for(i=0; i < rooms.length; i++) {
           headRow.appendChild(D.TH({'class':'room'},rooms[i].name));
           colGroup.appendChild(D.COL());
@@ -54,10 +53,16 @@
         
         for(i = 0; i < segments.length; i++) {
             tr = D.TR({'class':'segment segment'+i});
-            tr.appendChild(D.TH({'class':'period'},segments[i].start + ' - ' +
-            segments[i].end));
+            segment = segments[i];
+            if(segment.start && segment.end){
+              tr.appendChild(D.TH({'class':'period'},segments[i].start + ' - ' +
+              segments[i].end));
+            } else {
+              tr.appendChild(D.TH({'class':'period'}));
+            }
+
             for(j = 0; j < rooms.length;j++){
-              if(j < segments[i].sketches.length &&
+              if(segment.sketches && j < segments[i].sketches.length &&
                 segments[i].sketches[j]){
                 sketch = segments[i].sketches[j];
                 td = D.TD({'class':'sketch','id':i+'-'+j});
@@ -80,12 +85,13 @@
             }
 
             content = '';
-            for(j = 0; j < segments[i].free.length; j++){
-              if(segments[i].free[j]) {
-                content += ' ' + segments[i].free[j] + ',';
+            if(segments[i].free){
+              for(j = 0; j < segments[i].free.length; j++){
+                if(segments[i].free[j]) {
+                  content += ' ' + segments[i].free[j] + ',';
+                }
               }
             }
-
             tr.appendChild(td = D.TD({'class':'free'}));
             td.innerHTML = content.replace(/(,$)/g, "");
             table.appendChild(tr);

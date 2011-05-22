@@ -252,6 +252,7 @@
 
       headRow.appendChild($.TH({},'Segment'));
       headRow.appendChild($.TH({},'Tidspunkt'));
+
 window.loadSession = function(){
   var json = prompt("Indsæt JSON kode her");
   var data = eval('(' + json + ')');
@@ -260,10 +261,12 @@ window.loadSession = function(){
     addSegment(data.segments[i]); 
   }
 }
+
 window.saveSession = function(){
   var jsonObject = JSON.stringify(segmentData); //This is firefox 3.5.4+ specific
     document.getElementById('jsondata').value = jsonObject;
 }
+
 window.loadSegment = function(index){
   var segment = segmentData.segments[index];
   jQuery('#plan tbody th').map(function(index,domElement){
@@ -277,21 +280,25 @@ window.loadSegment = function(index){
 window.addSegment = function(segment){
   var tr = $.TR({});
 
-  tr.appendChild($.TD({},segment.start+' - '+segment.end));
-  content ='';
-  for(var i=0;i<segment.sketches.length;i++) {
-    if(segment.sketches[i])
-      content += ' ' + segment.sketches[i].sketch + ',';
+  if(segment.start && segment.end && segment.sketches){
+    tr.appendChild($.TD({},segment.start+' - '+segment.end));
+    content ='';
+    for(var i=0;i<segment.sketches.length;i++) {
+      if(segment.sketches[i])
+        content += ' ' + segment.sketches[i].sketch + ',';
+    }
+    content = content.replace(/(,$)/g,"");
+  } else {
+    tr.appendChild($.TD({},''));
+    content = '';
   }
-
-  content = content.replace(/(,$)/g,"");
-
   tr.appendChild($.TD({},content));
   segmentsTable.appendChild(tr);
 
-  jQuery(td).click(function(event){
+/*  jQuery(td).click(function(event){
     loadSegment(this.parentNode.rowIndex-1);
-  });
+  });*/
+
   tr.appendChild(td = $.TD({'class':'segment-del'},'X'));
 
   segmentData.segments.push(segment);
@@ -307,12 +314,14 @@ window.addSegment = function(segment){
     }
   });
 }
+
 window.sortSegments = function() {
   //This line should be in a change eventhandler but don't have time to
   //fix it
   segmentData.day = document.getElementById('day').value;
   var w = window.open('plan.html','planner');
 }
+
 window.updateDisplay = function () {
   var inUse = [];
   var ret = {
@@ -346,6 +355,7 @@ window.updateDisplay = function () {
 };
 
 			var form = '<button onclick="addSegment(updateDisplay())">Tilføj segment</button>';
+      form += '<button onclick="addSegment({})">Tilføj pause</button>';
       form += '<button onclick="loadSession()">Indlæs session</button>';
       form += '<button onclick="saveSession()">Gem session</button>';
       form += '<label for="day">Dag</label>';
