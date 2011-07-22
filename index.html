@@ -80,12 +80,18 @@
 <!--	<script type="text/javascript" src="jquery.delegate.js"></script>-->
 	<script type="text/javascript"
   src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+  <script type="text/javascript" src="jquery.cookie.js"></script>
 	<script type="text/javascript">
-  var segmentData = {
-    'day':'Indsæt ugedag', 
-    segments:[]
-  };
-	
+  //This is the variable that stores information in json about the
+  //segments
+  var segmentData = JSON.parse(jQuery.cookie('segmentData'));
+  if(segmentData == null){
+    var segmentData = {
+      'day':'Indsæt ugedag', 
+      segments:[]
+    };
+  }
+
   window.revy = {
 		drawRehersal : function() {
 			var $ = DOMBuilder;
@@ -128,27 +134,29 @@
 				)
 			);
 			
-		
+		  //Create a colgroup for each actor
 			for (i = 0; i < actors.length; i++) {
 				headRow.appendChild($.TH({'class':'name'}, actors[i].name));
           
 				colGroup.appendChild($.COL());
 			}
-			
+
+			//Setup the acts
 			for (i = 0; i < acts.length; i++) {
 				table.appendChild(
-					$.TR({},
+					$.TR(
 						$.TH({'colspan': actors.length + 1, 'class': 'pause'}, acts[i].title)
 					)
 				);
 				var actBody	= $.TBODY();
 				table.appendChild(actBody);
-				
+				//For each act
 				for (j = 0; j < acts[i].materials.length; j++) {
 					if (acts[i].materials[j].type !== 'video') {
+            //Add the sketch
 						actBody.appendChild(
 							tr = $.TR(
-								$.TH({},
+   								$.TH({},
 									$.LABEL({'for': acts[i].materials[j].title + j},
 										$.INPUT({'type': 'checkbox', 'id': acts[i].materials[j].title + j, 'name': acts[i].materials[j].title + j}),
 										acts[i].materials[j].title
@@ -167,9 +175,13 @@
 								if (role.actor === actors[k].name) {
 									actors[k].rows.push(tr.rowIndex);
 									td.appendChild(
-										$.LABEL({'for': acts[i].materials[j].title + role.abbr},
+										$.LABEL({'for':
+                    acts[i].materials[j].title.replace(/ /g,'-') +
+                    role.abbr},
 											role.abbr,
-											input = $.INPUT({'type': 'checkbox', 'name': acts[i].materials[j].title + role.abbr, 'id': acts[i].materials[j].title + role.abbr})
+											input = $.INPUT({'type': 'checkbox', 'name':
+                      acts[i].materials[j].title + role.abbr, 'id':
+                      acts[i].materials[j].title.replace(/ /g,'-') + role.abbr})
 										)
 									);
 									sketches[tr.rowIndex].push({
@@ -239,8 +251,12 @@
 							for (var k = 0; k < inputs.length; k++) {
 								inputs[k].disabled = input.checked;
 							}
-						}
+						} else if(row == thisRow && input.checked) {
+              jQuery(row).children('th').children('label').children(':checkbox').attr('checked',true);
+              jQuery(row).addClass('inUse');
+            }
 					}
+          jQuery.cookie('currentSegment',JSON.stringify(updateDisplay()));
 				}
 			);
 
@@ -267,17 +283,32 @@ window.saveSession = function(){
     document.getElementById('jsondata').value = jsonObject;
 }
 
-window.loadSegment = function(index){
-  var segment = segmentData.segments[index];
-  jQuery('#plan tbody th').map(function(index,domElement){
-    for(i=0;i < segment.sketches.length;i++){
-      if(domElement.firstChild.textContent == segment.sketches[i].sketch){
+window.loadSegment = function(segment){
+  for(var i=0;i<segment.sketches.length;i++) {
+    var sketch = segment.sketches[i];
+    if(sketch != null) {
+      var thesketch = sketches[sketch.row];
+      var rows = jQuery('#plan tbody tr');
+
+      for(var j=0;j<sketch.actors.length;j++){
+        var actor = sketch.actors[j];
+        for(var k=0;k<thesketch.length;k++){
+          if(actor.col == thesketch[k].col){
+            var input = thesketch[k].input;
+            jQuery(input).trigger('click');
+            var row = jQuery(input).parent().parent().parent();
+            row.addClass('inUse');
+            row.children('th').children('label').children(':checkbox').attr('checked',true);
+                        //get the row and set proper values there
+            break;
+          }
+        }
       }
     }
-  });
+  }
 }
 
-window.addSegment = function(segment){
+window.addSegmentRow = function(segment){
   var tr = $.TR({});
 
   if(segment.start && segment.end && segment.sketches){
@@ -298,11 +329,13 @@ window.addSegment = function(segment){
 /*  jQuery(td).click(function(event){
     loadSegment(this.parentNode.rowIndex-1);
   });*/
+  tr.appendChild(td = $.TD({'class':'segment-edit'},'Edit'));
 
+  jQuery(td).click(function(event){
+    var thisRow = this.parentNode;
+    window.editSegment(thisRow.rowIndex-1);
+  });
   tr.appendChild(td = $.TD({'class':'segment-del'},'X'));
-
-  segmentData.segments.push(segment);
-
   jQuery(td).click(function(event){
     var thisRow = this.parentNode;
     var thisTable = thisRow.parentNode;
@@ -314,6 +347,26 @@ window.addSegment = function(segment){
     }
   });
 }
+window.addSegment = function(segment){
+  segmentData.segments.push(segment);
+  addSegmentRow(segment)
+  jQuery.cookie('segmentData',JSON.stringify(segmentData));
+
+}
+//Unchecks all checkboxes :)
+window.clearSegment = function(){
+  jQuery('input:checkbox').attr('checked',false).removeAttr('disabled');
+  jQuery('.inUse').removeClass('inUse');
+  jQuery('.blocked').removeClass('blocked');
+  jQuery.cookie('currentSegment',null);
+}
+window.editSegment = function(index){
+  
+  clearSegment();
+  
+  var segment = segmentData.segments[index];
+  loadSegment(segment);
+}
 
 window.sortSegments = function() {
   //This line should be in a change eventhandler but don't have time to
@@ -322,6 +375,8 @@ window.sortSegments = function() {
   var w = window.open('plan.html','planner');
 }
 
+//This function takes care of creating the segment object. Should really
+//be changed to a more saying name...
 window.updateDisplay = function () {
   var inUse = [];
   var ret = {
@@ -334,13 +389,14 @@ window.updateDisplay = function () {
   
   jQuery('#plan tbody tr:has("th input:checked")').map(function(index,domElement) {
      var sketch = {
+      'row': domElement.rowIndex,
       'sketch': domElement.firstChild.textContent,
       'actors':[]
     }
     jQuery(domElement).children('td:has("input:checked")').map(function(index,domElement) {
       var actor = actors[domElement.cellIndex -1];
       inUse.push(actor);
-      sketch.actors.push(actor.name);
+      sketch.actors.push(actor);
     })
     ret.sketches[i] = sketch;
     i++;
@@ -354,7 +410,8 @@ window.updateDisplay = function () {
   return ret;
 };
 
-			var form = '<button onclick="addSegment(updateDisplay())">Tilføj segment</button>';
+			var form = '<div style="z-index:999;position:fixed;top:0px;width:100%;height:30px; background-color:#FFF"><button onclick="addSegment(updateDisplay())">Tilføj segment</button>';
+      form += '<button onclick="clearSegment()">Ryd segment</button>';
       form += '<button onclick="addSegment({})">Tilføj pause</button>';
       form += '<button onclick="loadSession()">Indlæs session</button>';
       form += '<button onclick="saveSession()">Gem session</button>';
@@ -364,14 +421,20 @@ window.updateDisplay = function () {
       form += '<input type="textfield" name="from" id="from" value="" />';
       form += '<label for="to">Segment slut:</label>';
       form += '<input\ type="textfield" name="to" id="to" value="" />';
-      form += '<button onclick="sortSegments()">Sortér segmenter</button>';
+      form += '<button onclick="sortSegments()">Sortér segmenter</button></div>';
       document.body.innerHTML += form;
       document.body.innerHTML += '<textarea name="jsondata" id="jsondata" onfocus="this.select()"></textarea>';
 			document.body.appendChild(table);
       document.body.appendChild(segmentsTable);
+      for(var i=0;i<segmentData.segments.length;i++)
+      {
+        window.addSegmentRow(segmentData.segments[i]);
+      }
+      var currentSegment = JSON.parse(jQuery.cookie('currentSegment'));
+      window.loadSegment(currentSegment);
 		}
 	};
-	</script>
+		</script>
 	
 	<script type="text/javascript">
 		jQuery(document).ready(function(){
