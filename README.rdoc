@@ -1,12 +1,13 @@
-== SETUP ==
+== SETUP 
 The setup file takes a single argument consisting of an url address to a
 json.js file created by the RevyTex environment. It prepends and appends
 strings in order to make it usable by the oeveplan script.
 
-Example: ./setup.sh http://dikurevy.dk/2011/http-pub/json.js
+Example: 
+    ./setup.sh http://dikurevy.dk/2011/http-pub/json.js
 
-== Requirements ==
+== Requirements 
 Firefox 3.5.4+, IE 8 or Chrome 3 (native JSON support)
 
-== USAGE ==
+== USAGE 
 Give it a try and see :)
