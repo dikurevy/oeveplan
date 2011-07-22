@@ -8,66 +8,6 @@
 	
 	<style type="text/css">
   @import url("style.css")
-  /*
-		* {
-			font-family: "Tahoma", "Verdana", sans-serif;
-			font-size: 10px;
-		}
-		
-		table {
-			empty-cells: show;
-			border-collapse: collapse;
-		}
-		
-		table th {
-			padding: 2px 5px;
-		}
-		
-		table tbody th {
-			padding: 0;
-		}
-		
-		table th.pause {
-			text-align: center;
-		}
-		
-		table td {
-			padding: 0;
-			border: 1px solid black;
-		}
-		
-		table label {
-			display: block;
-			padding: 2px 5px;
-			text-align: center;
-		}
-		
-		table tbody th label {
-			text-align: left;
-		}
-		
-		table input {
-			position: relative;
-			top: 2px;
-		}
-		
-		table colgroup col.hover,
-		table tbody tr:hover {
-			background-color: rgba(0, 0, 0, 0.05);
-		}
-		
-		table colgroup col.inUse {
-			background-color: rgba(255, 0, 0, 0.1);
-		}
-		
-		table tbody tr.blocked {
-			background-color: rgba(0, 0, 0, 0.3);
-			color: rgba(0, 0, 0, 0.3);
-		}
-		
-		table tbody tr.inUse {
-			background-color: rgba(0, 255, 0, 0.3);
-		}*/
 	</style>
 	
 	<script type="text/javascript">
@@ -412,19 +352,6 @@ window.updateDisplay = function () {
   return ret;
 };
 
-			var form = '<div style="z-index:999;position:fixed;top:0px;width:100%;height:30px; background-color:#FFF"><button onclick="addSegment(updateDisplay())">Tilføj segment</button>';
-      form += '<button onclick="clearSegment()">Ryd segment</button>';
-      form += '<button onclick="addSegment({})">Tilføj pause</button>';
-      form += '<button onclick="loadSession()">Indlæs session</button>';
-      form += '<button onclick="saveSession()">Gem session</button>';
-      form += '<label for="day">Dag</label>';
-      form += '<input type="textfield" name="day" id="day" value="" />';
-      form += '<label for="from">Segment start:</label>'
-      form += '<input type="textfield" name="from" id="from" value="" />';
-      form += '<label for="to">Segment slut:</label>';
-      form += '<input\ type="textfield" name="to" id="to" value="" />';
-      form += '<button onclick="sortSegments()">Sortér segmenter</button></div>';
-      document.body.innerHTML += form;
       document.body.innerHTML += '<textarea name="jsondata" id="jsondata" onfocus="this.select()"></textarea>';
 			document.body.appendChild(table);
       document.body.appendChild(segmentsTable);
@@ -446,6 +373,18 @@ window.updateDisplay = function () {
 </head>
 
 <body>
+			<div id="menu"><button onclick="addSegment(updateDisplay())">Tilføj segment</button>
+      <button onclick="clearSegment()">Ryd segment</button>
+      <button onclick="addSegment({})">Tilføj pause</button>
+      <button onclick="loadSession()">Indlæs session</button>
+      <button onclick="saveSession()">Gem session</button>
+      <label for="day">Dag</label>
+      <input type="textfield" name="day" id="day" value="" />
+      <label for="from">Segment start:</label>'
+      <input type="textfield" name="from" id="from" value="" />
+      <label for="to">Segment slut:</label>
+      <input\ type="textfield" name="to" id="to" value="" />
+      <button onclick="sortSegments()">Sortér segmenter</button></div>
 	
 </body>
 
