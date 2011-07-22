@@ -1,0 +1,113 @@
+		* {
+			font-family: "Tahoma", "Verdana", sans-serif;
+			font-size: 10px;
+		}
+		
+		table {
+			border-collapse: collapse;
+			empty-cells: show;
+		}
+    #segment {
+      margin-top:20px;
+    }
+	  h2 {
+    margin:0px;
+  }
+	
+
+		table th {
+			padding: 2px 5px;
+		}
+		
+		table tbody th {
+			padding: 0;
+		}
+		
+		table th.pause {
+			text-align: center;
+		}
+		
+		table td {
+			padding: 0;
+			border: 1px solid black;
+		}
+		
+		table label {
+			display: block;
+			padding: 2px 5px;
+			text-align: center;
+		}
+		
+		table tbody th label {
+			text-align: left;
+		}
+		
+		table input {
+			position: relative;
+			top: 2px;
+		}
+		
+		table colgroup col.hover,
+    table tbody tr:hover {
+			background-color: rgba(0, 0, 0, 0.05);
+		}
+		
+		table colgroup col.inUse {
+			background-color: rgba(255, 0, 0, 0.1);
+		}
+		
+		table tbody tr.blocked {
+			background-color: rgba(0, 0, 0, 0.3);
+			color: rgba(0, 0, 0, 0.3);
+		}
+		
+		table tbody tr.inUse {
+			background-color: rgba(0, 255, 0, 0.3);
+		}
+/* style for plan table */
+  #plan{
+    border-collapse:separate;
+    border-spacing:0px;
+    border: 1px solid #000;
+  }
+  #plan td{
+    vertical-align:text-top;
+    background-color:#FFF;
+    text-align:left;
+    padding:5px;
+  }
+  #plan th{
+    vertical-align:text-top;
+    min-width:150px;
+    border: 1px solid black;
+  }
+  .actor {
+    float:left;
+    padding:0px 2px 0px 2px;
+  }
+  .sketch {
+    width:150px; 
+  }
+   .period {
+    width:100px;
+  }
+  .free{
+    width:100px;
+  }
+
+  #plan .sketch:hover {
+    background-color:#DDD;
+  }
+  .ui-draggable-dragging{
+    border:3px solid #888;
+  }
+
+/* style the menu */
+/*
+#menu {
+  position:fixed;
+  background-color:#FFF;
+  top:0px;
+  width:100%;
+  z-index:999;
+}*/

@@ -7,6 +7,8 @@
 	<title>Planlægning af øvesegmenter i revyens øveuge</title>
 	
 	<style type="text/css">
+  @import url("style.css")
+  /*
 		* {
 			font-family: "Tahoma", "Verdana", sans-serif;
 			font-size: 10px;
@@ -65,7 +67,7 @@
 		
 		table tbody tr.inUse {
 			background-color: rgba(0, 255, 0, 0.3);
-		}
+		}*/
 	</style>
 	
 	<script type="text/javascript">
@@ -124,7 +126,7 @@
 				};
 			}
 			
-			table = $.TABLE({'id': 'plan'},
+			table = $.TABLE({'id': 'segment'},
 				$.COL(),
 				colGroup = $.COLGROUP(),
 				$.THEAD({},
@@ -197,7 +199,7 @@
 			}
 			
 			jQuery(table).delegate(
-				'#plan tbody th input',
+				'#segment tbody th input',
 				'change',
 				function() {
 					var input = this;
@@ -216,7 +218,7 @@
 			);
 			
 			jQuery(table).delegate(
-				'#plan tbody td input',
+				'#segment tbody td input',
 				'change',
 				function() {
 					var input = this;
@@ -288,7 +290,7 @@ window.loadSegment = function(segment){
     var sketch = segment.sketches[i];
     if(sketch != null) {
       var thesketch = sketches[sketch.row];
-      var rows = jQuery('#plan tbody tr');
+      var rows = jQuery('#segment tbody tr');
 
       for(var j=0;j<sketch.actors.length;j++){
         var actor = sketch.actors[j];
@@ -387,7 +389,7 @@ window.updateDisplay = function () {
   };
   var i = 0;
   
-  jQuery('#plan tbody tr:has("th input:checked")').map(function(index,domElement) {
+  jQuery('#segment tbody tr:has("th input:checked")').map(function(index,domElement) {
      var sketch = {
       'row': domElement.rowIndex,
       'sketch': domElement.firstChild.textContent,
