@@ -293,6 +293,7 @@ window.addSegment = function(segment){
   segmentData.segments.push(segment);
   addSegmentRow(segment)
   jQuery.cookie('segmentData',JSON.stringify(segmentData));
+  window.clearSegment();
 
 }
 //Unchecks all checkboxes :)
@@ -302,12 +303,14 @@ window.clearSegment = function(){
   jQuery('.blocked').removeClass('blocked');
   jQuery.cookie('currentSegment',null);
 }
+
 window.editSegment = function(index){
   
-  clearSegment();
-  
+  window.clearSegment();
   var segment = segmentData.segments[index];
-  loadSegment(segment);
+  setTimeout(function(){
+    loadSegment(segment);
+  },20);
 }
 
 window.sortSegments = function() {
