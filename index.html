@@ -24,12 +24,12 @@
   src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
   <script language="javascript"
   src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js"></script>
-  <script type="text/javascript" src="jquery.cookie.js"></script>
+  <script type="text/javascript" src="config.js"></script>
 	<script type="text/javascript">
   //This is the variable that stores information in json about the
   //segments
   var segmentData =
-  JSON.parse(jQuery.cookie('segmentData',{'expires':7,'Path':'/'}));
+  JSON.parse(localStorage.segmentData);
   if(segmentData == null){
     var segmentData = {
       'day':'Indsæt ugedag', 
@@ -201,7 +201,7 @@
               jQuery(row).addClass('inUse');
             }
 					}
-                jQuery.cookie('currentSegment',JSON.stringify(updateDisplay()));
+                localStorage.currentSegment = JSON.stringify(updateDisplay());
 				}
 			);
 
@@ -294,7 +294,7 @@ window.addSegmentRow = function(segment){
     var thisTable = thisRow.parentNode;
     segmentData.segments.splice(thisRow.rowIndex - 1,1);
     thisTable.removeChild(thisRow);
-    jQuery.cookie('segmentData',JSON.stringify(segmentData),{'expires':7,'Path':'/'});
+    localStorage.segmentData = JSON.stringify(segmentData);
     content = '';
     for(i = 0; i < segmentData.segments.length;i++){
       content += segmentData.segments[i].start + '\n';
@@ -309,7 +309,7 @@ window.addSegment = function(segment){
     addSegmentRow(segment);
     var thedata = JSON.stringify(segmentData);
 
-    jQuery.cookie('segmentData',thedata,{'expires':7,'Path':'/'});
+    localStorage.segmentData = thedata;
   } else {
     alert('nej nej nej! Du skal skrive start og slut paa');
   }
@@ -328,7 +328,7 @@ window.clearSegment = function(){
   jQuery('input:checkbox').attr('checked',false).removeAttr('disabled');
   jQuery('.inUse').removeClass('inUse');
   jQuery('.blocked').removeClass('blocked');
-  jQuery.cookie('currentSegment',null);
+  localStorage.currentSegment = null;
 }
 
 window.editSegment = function(index){
@@ -351,7 +351,7 @@ window.updateDisplay = function () {
   var ret = {
     'start': document.getElementById('from').value,
     'end': document.getElementById('to').value,
-    'sketches': new Array(6), //Dirty hack, this should match the number of rooms
+    'sketches': new Array(rooms.length), //Dirty hack, this should match the number of rooms
     'free': []
   };
   var i = 0;
@@ -386,7 +386,7 @@ window.updateDisplay = function () {
       {
         window.addSegmentRow(segmentData.segments[i]);
       }
-      var currentSegment = JSON.parse(jQuery.cookie('currentSegment'));
+      var currentSegment = JSON.parse(localStorage.currentSegment);
       window.loadSegment(currentSegment);
 		}
 	};
