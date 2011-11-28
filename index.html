@@ -200,7 +200,7 @@
               jQuery(row).addClass('inUse');
             }
 					}
-          jQuery.cookie('currentSegment',JSON.stringify(updateDisplay()));
+  //              jQuery.cookie('currentSegment',JSON.stringify(updateDisplay()),{expires:7,path:'something'});
 				}
 			);
 
@@ -234,18 +234,22 @@ window.loadSegment = function(segment){
   if(segment != null){
   for(var i=0;i<segment.sketches.length;i++) {
     var sketch = segment.sketches[i];
-    if(sketch != null) {
+    if(sketch != null && sketch.actors) {
       var thesketch = sketches[sketch.row];
       var rows = jQuery('#segment tbody tr');
       for(var j=0;j<sketch.actors.length;j++){
         var actor = sketch.actors[j];
         for(var k=0;k<thesketch.length;k++){
-          if(actor.col == thesketch[k].col){
             var input = thesketch[k].input;
-            jQuery(input).trigger('click');
             var row = jQuery(input).parent().parent().parent();
-            row.addClass('inUse');
-            row.children('th').children('label').children(':checkbox').attr('checked',true);
+            row.addClass('inUse').removeClass('blocked');
+            row.children('th').children('label').children(':checkbox').attr('checked',true).attr('disabled',false);
+            row.children('td').children('label').children(':checkbox').attr('disabled',false);
+          if(actor.col == thesketch[k].col){
+            input.disabled = false;
+            input.checked = true;
+            jQuery(input).trigger('change');
+//            jQuery(input).trigger('click');
                         //get the row and set proper values there
             break;
           }
@@ -298,11 +302,14 @@ window.addSegmentRow = function(segment){
 
 window.addSegment = function(segment){
   if(segment.start && segment.end){
+
     segmentData.segments.push(segment);
-//    jQuery('#from').val(jQuery('#from').val());
-//    jQuery('#to').val(jQuery('#to').val());
     addSegmentRow(segment);
-    jQuery.cookie('segmentData',JSON.stringify(segmentData));
+      var thedata = JSON.stringify(segmentData);
+ setTimeout(function(){     
+      jQuery.cookie('segmentData', thedata);
+},20);
+//      alert(jQuery.cookie('segmentData'));
   } else {
     alert('nej nej nej! Du skal skrive start og slut paa');
   }
@@ -321,12 +328,11 @@ window.clearSegment = function(){
   jQuery('input:checkbox').attr('checked',false).removeAttr('disabled');
   jQuery('.inUse').removeClass('inUse');
   jQuery('.blocked').removeClass('blocked');
-  jQuery.cookie('currentSegment',null);
+//  jQuery.cookie('currentSegment',null);
 }
 
 window.editSegment = function(index){
-  
-  window.clearSegment();
+    window.clearSegment();
   var segment = segmentData.segments[index];
     loadSegment(segment);
 }
@@ -380,8 +386,8 @@ window.updateDisplay = function () {
       {
         window.addSegmentRow(segmentData.segments[i]);
       }
-      var currentSegment = JSON.parse(jQuery.cookie('currentSegment'));
-      window.loadSegment(currentSegment);
+//      var currentSegment = JSON.parse(jQuery.cookie('currentSegment'));
+//      window.loadSegment(currentSegment);
 		}
 	};
 		</script>
