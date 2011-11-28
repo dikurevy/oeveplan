@@ -28,7 +28,8 @@
 	<script type="text/javascript">
   //This is the variable that stores information in json about the
   //segments
-  var segmentData = JSON.parse(jQuery.cookie('segmentData'));
+  var segmentData =
+  JSON.parse(jQuery.cookie('segmentData',{'expires':7,'Path':'/'}));
   if(segmentData == null){
     var segmentData = {
       'day':'Indsæt ugedag', 
@@ -200,7 +201,7 @@
               jQuery(row).addClass('inUse');
             }
 					}
-  //              jQuery.cookie('currentSegment',JSON.stringify(updateDisplay()),{expires:7,path:'something'});
+                jQuery.cookie('currentSegment',JSON.stringify(updateDisplay()));
 				}
 			);
 
@@ -293,6 +294,7 @@ window.addSegmentRow = function(segment){
     var thisTable = thisRow.parentNode;
     segmentData.segments.splice(thisRow.rowIndex - 1,1);
     thisTable.removeChild(thisRow);
+    jQuery.cookie('segmentData',JSON.stringify(segmentData),{'expires':7,'Path':'/'});
     content = '';
     for(i = 0; i < segmentData.segments.length;i++){
       content += segmentData.segments[i].start + '\n';
@@ -305,11 +307,9 @@ window.addSegment = function(segment){
 
     segmentData.segments.push(segment);
     addSegmentRow(segment);
-      var thedata = JSON.stringify(segmentData);
- setTimeout(function(){     
-      jQuery.cookie('segmentData', thedata);
-},20);
-//      alert(jQuery.cookie('segmentData'));
+    var thedata = JSON.stringify(segmentData);
+
+    jQuery.cookie('segmentData',thedata,{'expires':7,'Path':'/'});
   } else {
     alert('nej nej nej! Du skal skrive start og slut paa');
   }
@@ -328,7 +328,7 @@ window.clearSegment = function(){
   jQuery('input:checkbox').attr('checked',false).removeAttr('disabled');
   jQuery('.inUse').removeClass('inUse');
   jQuery('.blocked').removeClass('blocked');
-//  jQuery.cookie('currentSegment',null);
+  jQuery.cookie('currentSegment',null);
 }
 
 window.editSegment = function(index){
@@ -386,8 +386,8 @@ window.updateDisplay = function () {
       {
         window.addSegmentRow(segmentData.segments[i]);
       }
-//      var currentSegment = JSON.parse(jQuery.cookie('currentSegment'));
-//      window.loadSegment(currentSegment);
+      var currentSegment = JSON.parse(jQuery.cookie('currentSegment'));
+      window.loadSegment(currentSegment);
 		}
 	};
 		</script>
