@@ -32,6 +32,7 @@
 		}
 		
 		#segment td,
+    #plan td,
     #segments td{
 			padding: 0;
 			border: 1px solid black;
