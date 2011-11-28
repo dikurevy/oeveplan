@@ -22,6 +22,8 @@
 <!--	<script type="text/javascript" src="jquery.delegate.js"></script>-->
 	<script type="text/javascript"
   src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+  <script language="javascript"
+  src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js"></script>
   <script type="text/javascript" src="jquery.cookie.js"></script>
 	<script type="text/javascript">
   //This is the variable that stores information in json about the
@@ -207,10 +209,11 @@
           headRow = $.TR({})
         ) 
       );
-
-      headRow.appendChild($.TH({},'Segment'));
+      
       headRow.appendChild($.TH({},'Tidspunkt'));
-
+      headRow.appendChild($.TH({},'Segment'));
+      headRow.appendChild($.TH({},''));
+      headRow.appendChild($.TH({'onclick':'jQuery("#segments tbody").hide()'},'+'));
 window.loadSession = function(){
   var json = prompt("Indsæt JSON kode her");
   var data = eval('(' + json + ')');
@@ -223,15 +226,17 @@ window.loadSession = function(){
 window.saveSession = function(){
   var jsonObject = JSON.stringify(segmentData); //This is firefox 3.5.4+ specific
     document.getElementById('jsondata').value = jsonObject;
+    jQuery('#sessiondata').show();
+    jQuery('#jsondata').focus();
 }
 
 window.loadSegment = function(segment){
+  if(segment != null){
   for(var i=0;i<segment.sketches.length;i++) {
     var sketch = segment.sketches[i];
     if(sketch != null) {
       var thesketch = sketches[sketch.row];
       var rows = jQuery('#segment tbody tr');
-
       for(var j=0;j<sketch.actors.length;j++){
         var actor = sketch.actors[j];
         for(var k=0;k<thesketch.length;k++){
@@ -248,13 +253,14 @@ window.loadSegment = function(segment){
       }
     }
   }
+  }
 }
 
 window.addSegmentRow = function(segment){
   var tr = $.TR({});
 
   if(segment.start && segment.end && segment.sketches){
-    tr.appendChild($.TD({},segment.start+' - '+segment.end));
+    tr.appendChild($.TD({'class':'segment-time'},segment.start+' - '+segment.end));
     content ='';
     for(var i=0;i<segment.sketches.length;i++) {
       if(segment.sketches[i])
@@ -262,7 +268,7 @@ window.addSegmentRow = function(segment){
     }
     content = content.replace(/(,$)/g,"");
   } else {
-    tr.appendChild($.TD({},''));
+    tr.appendChild($.TD({'class':'segment-time'},''));
     content = '';
   }
   tr.appendChild($.TD({},content));
@@ -277,7 +283,7 @@ window.addSegmentRow = function(segment){
     var thisRow = this.parentNode;
     window.editSegment(thisRow.rowIndex-1);
   });
-  tr.appendChild(td = $.TD({'class':'segment-del'},'X'));
+  tr.appendChild(td = $.TD({'class':'segment-del'},'Slet'));
   jQuery(td).click(function(event){
     var thisRow = this.parentNode;
     var thisTable = thisRow.parentNode;
@@ -289,13 +295,27 @@ window.addSegmentRow = function(segment){
     }
   });
 }
-window.addSegment = function(segment){
-  segmentData.segments.push(segment);
-  addSegmentRow(segment)
-  jQuery.cookie('segmentData',JSON.stringify(segmentData));
-  window.clearSegment();
 
+window.addSegment = function(segment){
+  if(segment.start && segment.end){
+    segmentData.segments.push(segment);
+//    jQuery('#from').val(jQuery('#from').val());
+//    jQuery('#to').val(jQuery('#to').val());
+    addSegmentRow(segment);
+    jQuery.cookie('segmentData',JSON.stringify(segmentData));
+  } else {
+    alert('nej nej nej! Du skal skrive start og slut paa');
+  }
 }
+
+window.displayTime = function(segment){
+  jQuery('#time').show();
+  jQuery('#from').focus();
+}
+window.hideTime = function(){
+  jQuery('#time').hide();
+}
+
 //Unchecks all checkboxes :)
 window.clearSegment = function(){
   jQuery('input:checkbox').attr('checked',false).removeAttr('disabled');
@@ -308,9 +328,7 @@ window.editSegment = function(index){
   
   window.clearSegment();
   var segment = segmentData.segments[index];
-  setTimeout(function(){
     loadSegment(segment);
-  },20);
 }
 
 window.sortSegments = function() {
@@ -355,9 +373,9 @@ window.updateDisplay = function () {
   return ret;
 };
 
-      document.body.innerHTML += '<textarea name="jsondata" id="jsondata" onfocus="this.select()"></textarea>';
-			document.body.appendChild(table);
+     			document.body.appendChild(table);
       document.body.appendChild(segmentsTable);
+      jQuery('#segments').draggable({handle:"thead"});
       for(var i=0;i<segmentData.segments.length;i++)
       {
         window.addSegmentRow(segmentData.segments[i]);
@@ -376,19 +394,42 @@ window.updateDisplay = function () {
 </head>
 
 <body>
-			<div id="menu"><button onclick="addSegment(updateDisplay())">Tilføj segment</button>
+			<div id="menu"><button
+      onclick="displayTime()">Tilføj segment</button>
       <button onclick="clearSegment()">Ryd segment</button>
       <button onclick="addSegment({})">Tilføj pause</button>
       <button onclick="loadSession()">Indlæs session</button>
       <button onclick="saveSession()">Gem session</button>
-      <label for="day">Dag</label>
+<label for="day">Dag</label>
       <input type="textfield" name="day" id="day" value="" />
-      <label for="from">Segment start:</label>
+<button onclick="sortSegments()">Sortér segmenter</button>      
+<!--      <label for="from">Segment start:</label>
       <input type="textfield" name="from" id="from" value="" />
       <label for="to">Segment slut:</label>
-      <input type="textfield" name="to" id="to" value="" />
-      <button onclick="sortSegments()">Sortér segmenter</button></div>
-	
+      <input type="textfield" name="to" id="to" value="" />-->
+      </div>
+      <div id="time" style="display:none;">
+        <form id="time-form">
+          Hvornår starter og slutter dit segment?
+          <table>
+          <tr>
+          <td>Start time:</td><td> <input type="textfield" name="from" id="from"
+          value="" /></td></tr><tr><td>
+          End time:</td><td> <input type="textfield" name="to" id="to"
+          /></td></tr><tr><td></td><td>
+          <input type="button" onclick="hideTime()" value="Annulér"
+          />&nbsp;<input type="button"
+          onclick="addSegment(updateDisplay());hideTime()"
+          value="Tilføj"/></td></tr>
+          </table>
+        </form>
+      </div>
+      <div id="sessiondata">
+        Kopiér strengen og gem den i en simpel tekstfil.<br/>
+        <textarea name="jsondata" id="jsondata" onfocus="this.select()"
+        cols="100" rows="20"></textarea><br/>
+        <input type="button" onclick="jQuery('#sessiondata').hide()" value="OK" />
+      </div>
 </body>
 
 </html>
