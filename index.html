@@ -40,7 +40,7 @@
   window.revy = {
 		drawRehersal : function() {
 			var $ = DOMBuilder;
-			var acts = data[0]['acts'];
+			var acts = data['acts'];
 
 			var table,
 				colGroup,
@@ -148,8 +148,14 @@
 					var input = this;
 					var thisRow = jQuery(this).closest('tr')[0];
 					var sketch = sketches[thisRow.rowIndex];
-					
-					thisRow.className = (input.checked) ? 'inUse' : '';
+				
+          if(input.checked){
+            jQuery(thisRow).addClass('inUse');
+          } else {
+            jQuery(thisRow).removeClass('inUse');
+          }
+
+					//thisRow.className += (input.checked) ? ' inUse' : '';
 					
 					for (var i = 0; i < sketch.length; i++) {
 						if (sketch[i].input !== input) {
@@ -169,7 +175,23 @@
 					var thisRow = thisCell.parentNode;
 					
 					// Mark the column as (un)occupied
-					colGroup.childNodes[thisCell.cellIndex - 1].className = (input.checked) ? 'inUse' : '';
+          col = colGroup.childNodes[thisCell.cellIndex - 1];
+          elm = jQuery(col);
+          
+          if(input.checked){
+            if(elm.hasClass('inUse')){
+              elm.addClass('doubleBook');
+            } else {
+              elm.addClass('inUse');
+            }
+          } else {
+            if(elm.hasClass('doubleBook')){
+              elm.removeClass('doubleBook');
+            } else if(elm.hasClass('inUse')) {
+              elm.removeClass('inUse');
+            }
+          }
+			//		colGroup.childNodes[thisCell.cellIndex - 1].className = (input.checked) ? 'inUse' : '';
 					
 					// Iterate over all other rows where this actor is present and disable them
 					var actor = actors[thisCell.cellIndex - 1];
@@ -194,7 +216,7 @@
 							row.className = (input.checked) ? 'blocked' : '';
 							var inputs = row.getElementsByTagName('input');
 							for (var k = 0; k < inputs.length; k++) {
-								inputs[k].disabled = input.checked;
+//								inputs[k].disabled = input.checked;
 							}
 						} else if(row == thisRow && input.checked) {
               jQuery(row).children('th').children('label').children(':checkbox').attr('checked',true);
@@ -233,6 +255,8 @@ window.saveSession = function(){
 
 window.loadSegment = function(segment){
   if(segment != null){
+  jQuery('#from').val(segment.start);
+  jQuery('#to').val(segment.end);
   for(var i=0;i<segment.sketches.length;i++) {
     var sketch = segment.sketches[i];
     if(sketch != null && sketch.actors) {
@@ -243,7 +267,7 @@ window.loadSegment = function(segment){
         for(var k=0;k<thesketch.length;k++){
             var input = thesketch[k].input;
             var row = jQuery(input).parent().parent().parent();
-            row.addClass('inUse').removeClass('blocked');
+            row.addClass('inUse');
             row.children('th').children('label').children(':checkbox').attr('checked',true).attr('disabled',false);
             row.children('td').children('label').children(':checkbox').attr('disabled',false);
           if(actor.col == thesketch[k].col){
@@ -319,6 +343,7 @@ window.displayTime = function(segment){
   jQuery('#time').show();
   jQuery('#from').focus();
 }
+
 window.hideTime = function(){
   jQuery('#time').hide();
 }
@@ -326,7 +351,7 @@ window.hideTime = function(){
 //Unchecks all checkboxes :)
 window.clearSegment = function(){
   jQuery('input:checkbox').attr('checked',false).removeAttr('disabled');
-  jQuery('.inUse').removeClass('inUse');
+  jQuery('.inUse').removeClass('inUse').removeClass('doubleBook');
   jQuery('.blocked').removeClass('blocked');
   localStorage.currentSegment = null;
 }
