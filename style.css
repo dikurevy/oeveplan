@@ -63,10 +63,14 @@
 	  #segment colgroup col.inUse {
 			background-color: rgba(255, 0, 0, 0.1);
 		}
+
+    #segment colgroup col.doubleBook {
+      background-color: rgba(255,0,0,0.5);
+    }
 		
 		#segment tbody tr.blocked {
 			background-color: rgba(0, 0, 0, 0.3);
-			color: rgba(0, 0, 0, 0.3);
+/*			color: rgba(0, 0, 0, 0.3);*/
 		}
 		
 		#segment tbody tr.inUse {
@@ -86,7 +90,7 @@
   }
   #plan th{
     vertical-align:text-top;
-    min-width:150px;
+    min-width:100px;
     border: 1px solid black;
   }
   .actor {
@@ -94,10 +98,10 @@
     padding:0px 2px 0px 2px;
   }
   .sketch {
-    width:150px; 
+    min-width:100px; 
   }
    .period {
-    width:100px;
+    min-width:80px;
   }
   .free{
     width:100px;
