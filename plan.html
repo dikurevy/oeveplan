@@ -11,7 +11,7 @@
   src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
   <script language="javascript"
   src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js"></script>
-  <script language="javacsript" src="./dragtable.js"></script>
+  <script language="javascript" src="jquery.tablednd_0_5.js"></script>
   <script language="javascript" src="./config.js"></script>
   <script language="javascript">
     var source = null;
@@ -30,6 +30,7 @@
         colGroup = D.COLGROUP(),
         D.THEAD({},
           headRow = D.TR({},
+            D.TH({'class':'dragHandle'},''),
             D.TH({}, "Tidspunkt")
           )
         )
@@ -45,10 +46,11 @@
           table.appendChild(segmentBody);
         
         for(i = 0; i < segments.length; i++) {
-            tr = D.TR({'class':'segment segment'+i});
+            tr = D.TR({'class':'segment', 'id': 'segment-'+i});
+            tr.appendChild(D.TD({'class':'dragHandle'},'drag'));
             segment = segments[i];
             if(segment.start && segment.end){
-              tr.appendChild(D.TH({'class':'period'},segments[i].start + ' - ' +
+              tr.appendChild(D.TH({'class':'period','onclick':'jQuery("#timepicker").show()'},segments[i].start + ' - ' +
               segments[i].end));
             } else {
               tr.appendChild(D.TH({'class':'period'}));
@@ -96,6 +98,19 @@
        
       document.body.innerHTML += '<h1>Øveplan for: ' + data.day + '</h1>';
       document.body.appendChild(table);
+      timeTable = D.TABLE({});
+      for(var i = 0 ; i<segments.length; i++){
+        tr = D.TR({});
+        start = D.TD(D.INPUT({'class':'segment-start','id':'start-'+i,'value':segments[i].start}));
+        end = D.TD(D.INPUT({'class':'segment-end','id':'end-'+i,'value':segments[i].end}));
+        tr.appendChild(start);
+        tr.appendChild(end);
+        timeTable.appendChild(tr);
+      }
+      timeTable.appendChild(D.TR({},D.TD({}),D.TD({},D.INPUT({'type':'button','value':'Ret','onclick':'updateTime()'}))));
+
+      timePicker = D.DIV({'id':'timepicker'},timeTable);
+      document.body.appendChild(timePicker);
 
       $('.sketch').draggable({helper:'clone',start:function(event,ui){source
       = event.target}}).droppable({drop:
@@ -117,11 +132,45 @@
           $('#'+source.id).html(tmp);
         }
         source=null;}});
+      updateTime = function(){
+      for(var i=0;i < segments.length;i++){
+        segments[i].start = $('#start-'+i).val();
+        segments[i].end = $('#end-'+i).val();
+        
       }
-    }
+      jQuery('.segment .period').each(function(index,element){
+        jQuery(element).html(segments[index].start + ' - ' +
+        segments[index].end);
+      });
+    }  
+    var tmp; 
+      $('#plan').tableDnD({
+          onDrop: function (table,row){
 
+            newindex = row.rowIndex-1;
+            elm = opener.segmentData.segments[tmp];
+            opener.segmentData.segments.splice(tmp,1);
+           
+            opener.segmentData.segments.splice(newindex,0,elm);
+            
+            jQuery('#segment-'+newindex).attr('id','segment-'+tmp);
+            jQuery(row).attr('id','segment-'+newindex);
+            updateTime();
+            opener.storeSession();
+          },
+          onDragStart: function(table,row){
+           id = jQuery(row).parent().attr('id').split('-');
+           index = id[1];
+           tmp = index;
+          },
+          dragHandle: "dragHandle"
+        }); 
+    }
+    }
+     
     $('document').ready(function(){
         revy.drawSegments();
+        
     });
   </script>
   </head>

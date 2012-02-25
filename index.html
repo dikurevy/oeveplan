@@ -18,8 +18,8 @@
 	<script type="text/javascript" src="BO.js"></script>
 	<script type="text/javascript" src="DOMBuilder.js"></script>
 	<script type="text/javascript" src="Array.js"></script>
-<!--	<script type="text/javascript" src="jquery-1.3.2.min.js"></script>-->
-<!--	<script type="text/javascript" src="jquery.delegate.js"></script>-->
+<!--	<script type="text/javascript" src="jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="jquery.delegate.js"></script>-->
 	<script type="text/javascript"
   src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
   <script language="javascript"
@@ -28,8 +28,7 @@
 	<script type="text/javascript">
   //This is the variable that stores information in json about the
   //segments
-  var segmentData =
-  JSON.parse(localStorage.segmentData);
+  var segmentData = JSON.parse(localStorage.segmentData);
   if(segmentData == null){
     var segmentData = {
       'day':'Indsæt ugedag', 
@@ -245,7 +244,9 @@ window.loadSession = function(){
     addSegment(data.segments[i]); 
   }
 }
-
+window.storeSession = function(){
+  localStorage.segmentData = JSON.stringify(segmentData);
+}
 window.saveSession = function(){
   var jsonObject = JSON.stringify(segmentData); //This is firefox 3.5.4+ specific
     document.getElementById('jsondata').value = jsonObject;
@@ -419,7 +420,7 @@ window.updateDisplay = function () {
 	
 	<script type="text/javascript">
 		jQuery(document).ready(function(){
-			revy.drawRehersal()
+			revy.drawRehersal();
 		});
 	</script>
 </head>

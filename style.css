@@ -82,15 +82,20 @@
     border-spacing:0px;
     border: 1px solid #000;
   }
+  #plan .dragHandle{
+    width:20px;
+    min-width:20px;
+  }
   #plan td{
     vertical-align:text-top;
     background-color:#FFF;
     text-align:left;
     padding:5px;
+    width:150px;
+    height:50px;
   }
   #plan th{
     vertical-align:text-top;
-    min-width:100px;
     border: 1px solid black;
   }
   .actor {
@@ -168,4 +173,11 @@
   background-color:#FFF;
   padding:10px;
 }
-
+#timepicker{
+  position:fixed;
+  top:200px;
+  left:400px;
+  z-index:999;
+  background-color:rgba(255,255,255,1);
+  display:none;
+}
