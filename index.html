@@ -25,7 +25,11 @@
   <script language="javascript"
   src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js"></script>
   <script type="text/javascript" src="config.js"></script>
-	<script type="text/javascript">
+  <script type="text/javascript">
+  if(localStorage.segmentData == undefined)
+    localStorage.segmentData = null;
+  if(localStorage.currentSegment == undefined)
+    localStorage.currentSegment = null;
   //This is the variable that stores information in json about the
   //segments
   var segmentData = JSON.parse(localStorage.segmentData);
@@ -429,7 +433,7 @@ window.updateDisplay = function () {
 			<div id="menu"><button
       onclick="displayTime()">Tilføj segment</button>
       <button onclick="clearSegment()">Ryd segment</button>
-      <button onclick="addSegment({})">Tilføj pause</button>
+      <!--      <button onclick="addSegment({})">Tilføj pause</button> -->
       <button onclick="loadSession()">Indlæs session</button>
       <button onclick="saveSession()">Gem session</button>
 <label for="day">Dag</label>
